@@ -1,0 +1,121 @@
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux';
+import redGoti from '../Img/redGoti.png';
+import blueGoti from '../Img/blueGoti.png';
+import greenGoti from '../Img/greenGoti.png';
+import yellowGoti from '../Img/yellowGoti.png';
+import { setTokenWon } from '../App/Slices/isTokenWonSlice';
+import { setTernFinished, removeTernFinished } from '../App/Slices/isFinishTernSlice';
+import { addAvailableTern, removeAvailableTern } from '../App/Slices/AvailableTernSlice'
+import { useDispatch } from 'react-redux';
+const Goti = ({ color, tokenNum, moveToken }) => {
+    const dispatch = useDispatch();
+    useEffect(() => { gotiColorHandler() }, []);
+    const tokenPosition = useSelector((state) => state.tokenPosition);
+    const lockStatus = useSelector((state) => state.moveTokenController);
+    const [gotiColor, setGotiColor] = useState();
+    const [isGotiOnVictoryBox, setIsGotiOnVictoryBox] = useState(false);
+
+    const changeTern = () => {
+        console.log("color changed by goti ")
+        dispatch(removeAvailableTern(color));
+        if (color === "rgb(36,113,255)") {
+            dispatch(addAvailableTern("red"));
+        }
+        else if (color === "red") {
+            dispatch(addAvailableTern("green"));
+        }
+        else if (color === "green") {
+            dispatch(addAvailableTern("yellow"));
+        }
+        else if (color === "yellow") {
+            dispatch(addAvailableTern("rgb(36,113,255)"));
+        } else {
+            console.log("for changeTern conditionis not sufficent")
+        }
+    }
+
+
+
+    // this fuction hadle the color of token
+    const gotiColorHandler = () => {
+        if (color === "rgb(36,113,255)") {
+            setGotiColor(blueGoti);
+        }
+        else if (color === "red") {
+            setGotiColor(redGoti);
+        }
+        else if (color === "green") {
+            setGotiColor(greenGoti);
+        }
+        else if (color === "yellow") {
+            setGotiColor(yellowGoti);
+        }
+        else {
+            console.warn("Something went wrong!!!");
+        }
+    };
+
+
+
+    const handleLock = () => {
+        changeTern()
+        switch (color) {
+            case "rgb(36,113,255)":
+                if (lockStatus.blueToken == "unLocked") {
+                    if (!(tokenPosition.blueToken[tokenNum - 1] === "bh6")) {
+                        moveToken(color, tokenNum);
+                        setTernFinished(color)
+                    }
+                    else {
+                        setTokenWon(color, tokenNum)
+                    }
+                }
+                break;
+            case "red":
+                if (lockStatus.redToken == "unLocked") {
+                    if (!(tokenPosition.redToken[tokenNum - 1] === "rh6")) {
+                        moveToken(color, tokenNum)
+                        setTernFinished(color)
+                    }
+                    else {
+                        setTokenWon(color, tokenNum)
+                    }
+                }
+                break;
+            case "green":
+                if (lockStatus.greenToken == "unLocked") {
+                    if (!(tokenPosition.greenToken[tokenNum - 1] === "gh6")) {
+                        moveToken(color, tokenNum)
+                        setTernFinished(color)
+                    }
+                    else {
+                        setTokenWon(color, tokenNum)
+                    }
+                }
+                break;
+            case "yellow":
+                console.log(lockStatus)
+                if (lockStatus.yellowToken == "unLocked") {
+                    if (!(tokenPosition.yellowToken[tokenNum - 1] === "yh6")) {
+                        moveToken(color, tokenNum)
+                        setTernFinished(color)
+                    }
+                    else {
+                        setTokenWon(color, tokenNum)
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return (
+        <>
+            <img src={gotiColor} alt="  " onClick={handleLock} style={{ height: "45px", width: "45px", cursor: "pointer" }} />
+        </>
+
+    )
+}
+
+export default Goti
