@@ -13,7 +13,7 @@
 
 
 /.delete.js
-/target.txt
+/.target.txt
 # misc
 .DS_Store
 .env.local
