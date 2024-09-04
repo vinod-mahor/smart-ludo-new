@@ -11,9 +11,10 @@
 # production
 /build
 
+#some files that will not commite
 
-/.delete.js
 /.target.txt
+
 # misc
 .DS_Store
 .env.local
