@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './Playground.css'
 import ShowToken from './ShowToken'
 import { useSelector, useDispatch } from 'react-redux'
+import { setUserFinishedTern } from '../App/Slices/TernSlice'
 import { releseToken, runToken, runTokenOnVictoryPath, takeTokenOnVictoryPath } from '../App/Slices/TokenPositionSlice';
 import { lockTern } from '../App/Slices/MoveControllerSlice';
 import { takeOutOneToken } from '../App/Slices/HomeStatusSlice';
@@ -9,8 +10,8 @@ import { setTokenInsideOfVictoryPath, setTokenOutsideOfVictoryPath } from '../Ap
 import { setLap, removeLap } from '../App/Slices/LapSlice';
 
 const Playground = () => {
-
-    // const Tern = useSelector((state) => state.ternHandler);
+    
+    const Tern = useSelector((state) => state.ternHandler);
     const [argumentBlue, setArgumentBlue] = useState([])
     const [argumentRed, setArgumentRed] = useState([])
     const [argumentGreen, setArgumentGreen] = useState([])
@@ -21,29 +22,38 @@ const Playground = () => {
     const homeStatus = useSelector((state) => state.HomeStatus);
     const isTokenInVictoryBox = useSelector((state) => state.isTokenOnVictoryPath);
     const lapState = useSelector(state => state.lapSlice);
+    console.log(Tern)
     useEffect(() => {
         if (!argumentBlue.length == 0) {
             console.log("useEffect called ");
             const [tokenColor, tokenNum, diceAction] = argumentBlue;
             dispatch(takeTokenOnVictoryPath([tokenColor, tokenNum, diceAction, lapState]));
+            dispatch(setUserFinishedTern())
+            console.log("user seted to finished tern")
             setArgumentBlue([])
         }
         else if (!argumentRed.length == 0) {
             console.log("useEffect called ");
             const [tokenColor, tokenNum, diceAction] = argumentRed;
             dispatch(takeTokenOnVictoryPath([tokenColor, tokenNum, diceAction, lapState]));
+            dispatch(setUserFinishedTern())
+            console.log("user seted to finished tern")
             setArgumentRed([])
         }
         else if (!argumentGreen.length == 0) {
             console.log("useEffect called ");
             const [tokenColor, tokenNum, diceAction] = argumentGreen;
             dispatch(takeTokenOnVictoryPath([tokenColor, tokenNum, diceAction, lapState]));
+            dispatch(setUserFinishedTern())
+            console.log("user seted to finished tern")
             setArgumentGreen([])
         }
         else if (!argumentYellow.length == 0) {
             console.log("useEffect called ");
             const [tokenColor, tokenNum, diceAction] = argumentYellow;
             dispatch(takeTokenOnVictoryPath([tokenColor, tokenNum, diceAction, lapState]));
+            dispatch(setUserFinishedTern())
+            console.log("user seted to finished tern")
             setArgumentYellow([])
         }
 
@@ -103,6 +113,8 @@ const Playground = () => {
                                     console.log("token is on 53")
                                     setTokenDoneOneLap("blue", tokenNum, "set"); // setting the token has done 1 lap
                                     dispatch(runToken(["blue", tokenNum, diceLastNumberblue, curretPositionBlue, homeStatus]));
+                                    dispatch(setUserFinishedTern())
+                                    console.log("user seted to finished tern")
                                     dispatch(lockTern("rgb(36,113,255)"));
 
                                 } else {
@@ -123,8 +135,9 @@ const Playground = () => {
                             dispatch(lockTern("rgb(36,113,255)"));
                         }
                         else {
-                            console.log("token is going on")
                             dispatch(runToken(["blue", tokenNum, diceLastNumberblue, curretPositionBlue, homeStatus]));
+                            dispatch(setUserFinishedTern())
+                            console.log("user seted to finished tern")
                             dispatch(lockTern("rgb(36,113,255)"));
                         }
                     }

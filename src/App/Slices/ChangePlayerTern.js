@@ -8,13 +8,11 @@ const initialState = {
 };
 
 const ChangePlayerTern = createSlice({
-    name: 'ludo',
+    name: 'change player tern',
     initialState,
     reducers: {
         movePlayer(state, action) {
             state.playerMoved = true; // Set to true when a player moves
-            console.log(state.currentPlayer+'  currentPlayer');
-            console.log(state.playerMoved+'   playerMoved');
         },
         nextTurn(state) {
             state.currentPlayer = (state.currentPlayer) % 4; // Move to next player

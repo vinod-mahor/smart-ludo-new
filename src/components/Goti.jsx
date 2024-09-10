@@ -15,28 +15,7 @@ const Goti = ({ color, tokenNum, moveToken }) => {
     const lockStatus = useSelector((state) => state.moveTokenController);
     const [gotiColor, setGotiColor] = useState();
     const [isGotiOnVictoryBox, setIsGotiOnVictoryBox] = useState(false);
-
-    const changeTern = () => {
-        console.log("color changed by goti ")
-        dispatch(removeAvailableTern(color));
-        if (color === "rgb(36,113,255)") {
-            dispatch(addAvailableTern("red"));
-        }
-        else if (color === "red") {
-            dispatch(addAvailableTern("green"));
-        }
-        else if (color === "green") {
-            dispatch(addAvailableTern("yellow"));
-        }
-        else if (color === "yellow") {
-            dispatch(addAvailableTern("rgb(36,113,255)"));
-        } else {
-            console.log("for changeTern conditionis not sufficent")
-        }
-    }
-
-
-
+    
     // this fuction hadle the color of token
     const gotiColorHandler = () => {
         if (color === "rgb(36,113,255)") {
@@ -52,14 +31,13 @@ const Goti = ({ color, tokenNum, moveToken }) => {
             setGotiColor(yellowGoti);
         }
         else {
-            console.warn("Something went wrong!!!");
+            console.log("Something went wrong!!!");
         }
     };
 
 
 
     const handleLock = () => {
-        changeTern()
         switch (color) {
             case "rgb(36,113,255)":
                 if (lockStatus.blueToken == "unLocked") {
