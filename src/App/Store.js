@@ -11,9 +11,7 @@ import HomeStatusSliceReducer from './Slices/HomeStatusSlice.js';
 import AvailableTernSliceReducer from './Slices/AvailableTernSlice.js';
 import isTokenOnVictoryPathSlice from './Slices/isTokenOnVictoryPathSlice.js';
 import lapStateReducer from './Slices/LapSlice.js';
-import isFinishTernReducer from './Slices/isFinishTernSlice.js'
 import isTokenWonReducer from './Slices/isTokenWonSlice.js'
-import ChangePlayerTernReducer from './Slices/ChangePlayerTern.js';
 // import LapSliceReducer from './Slices/LapSlice.js';
 const store = configureStore({
     reducer: {
@@ -26,9 +24,7 @@ const store = configureStore({
         availableTern: AvailableTernSliceReducer,
         isTokenOnVictoryPath: isTokenOnVictoryPathSlice,
         lapSlice: lapStateReducer,
-        isFinishTern:isFinishTernReducer,
-        isTokenWon:isTokenWonReducer,
-        changePlayerTern:ChangePlayerTernReducer
+        isTokenWon:isTokenWonReducer
     },
     // middleware: getDefaultMiddleware => getDefaultMiddleware().concat(lapStateMiddleware)
 

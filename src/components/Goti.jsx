@@ -5,8 +5,6 @@ import blueGoti from '../Img/blueGoti.png';
 import greenGoti from '../Img/greenGoti.png';
 import yellowGoti from '../Img/yellowGoti.png';
 import { setTokenWon } from '../App/Slices/isTokenWonSlice';
-import { setTernFinished, removeTernFinished } from '../App/Slices/isFinishTernSlice';
-import { addAvailableTern, removeAvailableTern } from '../App/Slices/AvailableTernSlice'
 import { useDispatch } from 'react-redux';
 const Goti = ({ color, tokenNum, moveToken }) => {
     const dispatch = useDispatch();
@@ -43,7 +41,6 @@ const Goti = ({ color, tokenNum, moveToken }) => {
                 if (lockStatus.blueToken == "unLocked") {
                     if (!(tokenPosition.blueToken[tokenNum - 1] === "bh6")) {
                         moveToken(color, tokenNum);
-                        setTernFinished(color)
                     }
                     else {
                         setTokenWon(color, tokenNum)
@@ -54,7 +51,6 @@ const Goti = ({ color, tokenNum, moveToken }) => {
                 if (lockStatus.redToken == "unLocked") {
                     if (!(tokenPosition.redToken[tokenNum - 1] === "rh6")) {
                         moveToken(color, tokenNum)
-                        setTernFinished(color)
                     }
                     else {
                         setTokenWon(color, tokenNum)
@@ -65,7 +61,6 @@ const Goti = ({ color, tokenNum, moveToken }) => {
                 if (lockStatus.greenToken == "unLocked") {
                     if (!(tokenPosition.greenToken[tokenNum - 1] === "gh6")) {
                         moveToken(color, tokenNum)
-                        setTernFinished(color)
                     }
                     else {
                         setTokenWon(color, tokenNum)
@@ -77,7 +72,6 @@ const Goti = ({ color, tokenNum, moveToken }) => {
                 if (lockStatus.yellowToken == "unLocked") {
                     if (!(tokenPosition.yellowToken[tokenNum - 1] === "yh6")) {
                         moveToken(color, tokenNum)
-                        setTernFinished(color)
                     }
                     else {
                         setTokenWon(color, tokenNum)

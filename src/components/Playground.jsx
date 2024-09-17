@@ -8,7 +8,7 @@ import { lockTern } from '../App/Slices/MoveControllerSlice';
 import { takeOutOneToken } from '../App/Slices/HomeStatusSlice';
 import { setTokenInsideOfVictoryPath, setTokenOutsideOfVictoryPath } from '../App/Slices/isTokenOnVictoryPathSlice'
 import { setLap, removeLap } from '../App/Slices/LapSlice';
-
+// import { canTokenMove } from './Dice'
 const Playground = () => {
     
     const Tern = useSelector((state) => state.ternHandler);
@@ -22,7 +22,7 @@ const Playground = () => {
     const homeStatus = useSelector((state) => state.HomeStatus);
     const isTokenInVictoryBox = useSelector((state) => state.isTokenOnVictoryPath);
     const lapState = useSelector(state => state.lapSlice);
-    console.log(Tern)
+    // console.log(Tern)
     useEffect(() => {
         if (!argumentBlue.length == 0) {
             console.log("useEffect called ");

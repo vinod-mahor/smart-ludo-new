@@ -7,11 +7,7 @@ import { unLockTern } from '../App/Slices/MoveControllerSlice.js';
 import AvailableTernSlice, { addAvailableTern, removeAvailableTern } from '../App/Slices/AvailableTernSlice.js';
 import './Dice.css';
 import DiceRollingSould from '../audio/diceRollingSoundEffect.mp3'
-import { setTernFinished, removeTernFinished } from '../App/Slices/isFinishTernSlice.js';
-import { movePlayer, handleTurn } from '../App/Slices/ChangePlayerTern.js';
-import { handlePlayerTurn } from '../App/Slices/ChangePlayerTern.js';
 import { setUserFinishedTern, resetFinishedTern } from '../App/Slices/TernSlice';
-import { pushToNextTern } from '../App/Slices/TernSlice';
 import { setNextUserActive } from '../App/Slices/TernSlice';
 const Dice = (props) => {
     const [random, newRandom] = useState(Math.floor(Math.random() * 6) + 1);
@@ -25,7 +21,6 @@ const Dice = (props) => {
     const availableChance = useSelector((state) => state.availableTern);
     const homeStatus = useSelector((state) => state.HomeStatus)
     const isTokenWon = useSelector((state) => state.isTokenWon);
-    const currentPlayer = useSelector((state) => state.changePlayerTern.currentPlayer);
     const tokenPosition = useSelector((state) => state.tokenPosition);
     const dispatch = useDispatch();
     const myColor = props.props.backgroundColor;
@@ -37,19 +32,24 @@ const Dice = (props) => {
         diceSound.play();
     }
     useEffect(() => {
-        if (currentTern.isTernFinished) {
-            setTimeout(() => {
-                console.log("IsCurrentTernFinished : " + currentTern.isTernFinished);
+        if (skipTern) {
+            if (currentTern.isTernFinished) {
                 setTimeout(() => {
-                    dispatch(setNextUserActive());
-                    dispatch(resetFinishedTern())
-                }, 0);
-            }, 2500);
-            // console.log("setting the user finished tern  "+currentTern.isTernFinished);
+                    console.log("IsCurrentTernFinished : " + currentTern.isTernFinished);
+                    setTimeout(() => {
+                        dispatch(setNextUserActive());
+                        dispatch(resetFinishedTern());
+                    }, 0);
+                }, 4500);
+            }
+            setSkipTern(false);
         }
-
     }, [skipTern]);
-
+    useEffect(() => {
+        if (currentTern.isTernFinished) {
+            dispatch(setNextUserActive())
+        }
+    }, [currentTern.isTernFinished])
 
     useEffect(() => {
         ColorDecolorDice();
@@ -89,131 +89,67 @@ const Dice = (props) => {
             dispatch(setChangeColorInterval(intervalId));
         }
     };
+    const canToknMoveConditionCheaker = (allInHomeColor, allInVictoryColor, numberOfOutsideTokensColor, numberOfTokenWonColor) => {
+        if (((allInHomeColor && random !== 6) || allInVictoryColor)) {
+            dispatch(setUserFinishedTern());
+            setSkipTern(true); //skiping the tern
+            return false;
+        }
+        // Condition 1: when the token can move
+        else if ((numberOfOutsideTokensColor > 0) && !(numberOfOutsideTokensColor == numberOfTokenWonColor)) {
+            console.log("else if working")
+            dispatch(resetFinishedTern());
+            setSkipTern(false);
+            return true
+        }
+        else {
+            console.log("trying to handle errors!");
+        }
 
+    }
 
     function canTokenMove(currentTern, random, tokenPosition, homeStatus, isTokenWon, diceState, tokens) {
         switch (currentTern.ActiveUser) {
             case "rgb(36,113,255)":
                 // Check if all tokens are either in the home or in the victory area
-                const allInHomeBlue = homeStatus.blueToken.every(token => token.position === 'inside');
+                const allInHomeBlue = homeStatus.blueToken.every(token => token === 'inside');
                 const allInVictoryBlue = isTokenWon.blueToken.every(token => token === true);
                 const numberOfOutsideTokensBlue = homeStatus.blueToken.filter(token => token === "outside").length
                 const numberOfIntsideTokensBlue = homeStatus.blueToken.filter(token => token === "inside").length
                 const numberOfTokenWonBlue = isTokenWon.blueToken.filter(token => token === "true").length
-                const numberOfInTokensAndWonTokens = (numberOfIntsideTokensBlue + numberOfTokenWonBlue);
-                // Condition 1: All tokens are in the home and the player didn't roll a 6
-                if (((!allInHomeBlue && random !== 6) || allInVictoryBlue || (allInHomeBlue || allInVictoryBlue)) && (diceState.blueDice.at(-2) === 6)) {
-                    dispatch(setUserFinishedTern());
-                    setSkipTern(true); //skiping the tern
-                    return false;
-                }
-                else if ((numberOfOutsideTokensBlue > 0) && !(numberOfOutsideTokensBlue == numberOfTokenWonBlue)) {
-                    dispatch(resetFinishedTern());
-                    setSkipTern(false)
-                    return true
-                }
-                else {
-                    console.log("trying to handle errors!")
-                }
-
+                canToknMoveConditionCheaker(allInHomeBlue, allInVictoryBlue, numberOfOutsideTokensBlue, numberOfTokenWonBlue);
+                // console.warn({
+                //     allInHomeBlue,
+                //     allInVictoryBlue,
+                //     numberOfOutsideTokensBlue,
+                //     numberOfIntsideTokensBlue,
+                //     numberOfTokenWonBlue
+                // })
                 break;
             case "red":
-
-                // Check if all tokens are either in the home or in the victory area
-                const allInHomeRed = tokens.every(token => token.position === 'home');
-                const allInVictoryRed = tokens.every(token => token.position === 'victory');
-
-                // Condition 1: All tokens are in the home and the player didn't roll a 6
-                if (allInHomeRed && random !== 6) {
-                    return false;
-                }
-
-                // Condition 2: All tokens are in the victory area
-                if (allInVictoryRed) {
-                    return false;
-                }
-
-                // Condition 3: All tokens are either in the home or in victory
-                if (allInHomeRed || allInVictoryRed) {
-                    return false;
-                }
-
-                // Condition 4: Token is opened but can't move due to insufficient dice roll on victory path
-                const canAnyTokenMove = tokens.some(token => {
-                    if (token.position !== 'home' && token.position !== 'victory') {
-                        // Check if the token is on the board and can move with the dice roll
-                        return (token.stepsRemaining === random || token.stepsRemaining > random);
-                    }
-                    return false;
-                });
-
-                return canAnyTokenMove;
+                const allInHomeRed = homeStatus.redToken.every(token => token === 'inside');
+                const allInVictoryRed = isTokenWon.redToken.every(token => token === true);
+                const numberOfOutsideTokensRed = homeStatus.redToken.filter(token => token === "outside").length;
+                const numberOfIntsideTokensRed = homeStatus.redToken.filter(token => token === "inside").length;
+                const numberOfTokenWonRed = isTokenWon.redToken.filter(token => token === "true").length;
+                canToknMoveConditionCheaker(allInHomeRed, allInVictoryRed, numberOfOutsideTokensRed, numberOfTokenWonRed);
                 break;
             case "green":
-
-                // Check if all tokens are either in the home or in the victory area
-                const allInHomeGreen = tokens.every(token => token.position === 'home');
-                const allInVictoryGreen = tokens.every(token => token.position === 'victory');
-
-                // Condition 1: All tokens are in the home and the player didn't roll a 6
-                if (allInHomeGreen && random !== 6) {
-                    return false;
-                }
-
-                // Condition 2: All tokens are in the victory area
-                if (allInVictoryGreen) {
-                    return false;
-                }
-
-                // Condition 3: All tokens are either in the home or in victory
-                if (allInHomeGreen || allInVictoryGreen) {
-                    return false;
-                }
-
-                // Condition 4: Token is opened but can't move due to insufficient dice roll on victory path
-                const canAnyTokenMoveInGreen = tokens.some(token => {
-                    if (token.position !== 'home' && token.position !== 'victory') {
-                        // Check if the token is on the board and can move with the dice roll
-                        return (token.stepsRemaining === random || token.stepsRemaining > random);
-                    }
-                    return false;
-                });
-
-                return canAnyTokenMoveInGreen;
+                const allInHomeGreen = homeStatus.greenToken.every(token => token === 'inside');
+                const allInVictoryGreen = isTokenWon.greenToken.every(token => token === true);
+                const numberOfOutsideTokensGreen = homeStatus.greenToken.filter(token => token === "outside").length;
+                const numberOfIntsideTokensGreen = homeStatus.greenToken.filter(token => token === "inside").length;
+                const numberOfTokenWonGreen = isTokenWon.greenToken.filter(token => token === "true").length;
+                canToknMoveConditionCheaker(allInHomeGreen, allInVictoryGreen, numberOfOutsideTokensGreen, numberOfTokenWonGreen);
                 break;
             case "yellow":
-
-                // Check if all tokens are either in the home or in the victory area
-                const allInHomeYellow = tokens.every(token => token.position === 'home');
-                const allInVictoryYellow = tokens.every(token => token.position === 'victory');
-
-                // Condition 1: All tokens are in the home and the player didn't roll a 6
-                if (allInHomeYellow && random !== 6) {
-                    return false;
-                }
-
-                // Condition 2: All tokens are in the victory area
-                if (allInVictoryYellow) {
-                    return false;
-                }
-
-                // Condition 3: All tokens are either in the home or in victory
-                if (allInHomeYellow || allInVictoryYellow) {
-                    return false;
-                }
-
-                // Condition 4: Token is opened but can't move due to insufficient dice roll on victory path
-                const canAnyTokenMoveInYellow = tokens.some(token => {
-                    if (token.position !== 'home' && token.position !== 'victory') {
-                        // Check if the token is on the board and can move with the dice roll
-                        return (token.stepsRemaining === random || token.stepsRemaining > random);
-                    }
-                    return false;
-                });
-
-                return canAnyTokenMoveInYellow;
+                const allInHomeYellow = homeStatus.yellowToken.every(token => token === 'inside');
+                const allInVictoryYellow = isTokenWon.yellowToken.every(token => token === true);
+                const numberOfOutsideTokensYellow = homeStatus.yellowToken.filter(token => token === "outside").length;
+                const numberOfIntsideTokensYellow = homeStatus.yellowToken.filter(token => token === "inside").length;
+                const numberOfTokenWonYellow = isTokenWon.yellowToken.filter(token => token === "true").length;
+                canToknMoveConditionCheaker(allInHomeYellow, allInVictoryYellow, numberOfOutsideTokensYellow, numberOfTokenWonYellow);
                 break;
-
             default:
                 break;
         }
@@ -258,7 +194,7 @@ const Dice = (props) => {
 
     // ^^^^^^^^^^^^^^^%%%%%%%%%%% DICE MASTER FUCTION %%%%%%%%%%%%^^^^^^^^^^^^^^^
     const randomDice = async () => {
-        dispatch(movePlayer());
+        // dispatch(movePlayer());
         setIsDisabledDice(true); // diabling the dice till then change tern
         function allElementAreInside(arr) {  // this fuction will cheack that all the tokens insie of token home
             return arr.every(element => element === "inside");
@@ -333,15 +269,16 @@ const Dice = (props) => {
         changeFace();
         const review = await canTokenMove(currentTern, random, tokenPosition, homeStatus, isTokenWon, diceState);
         if (review) {
+            console.log(`review :${review}`)
             console.log("waiting for user move....")
         } else {
-            console.log("nothing")
+            console.log("set Next user active after watching review")
+            dispatch(setNextUserActive())
         }
         console.log("can token move  :" + review)
         setTimeout(() => {
             setIsDisabledDice(false);
         }, 2500);
-        dispatch(handlePlayerTurn);
     };
 
     return (
