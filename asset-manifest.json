@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/smart-ludo-new/static/css/main.f0de5868.css",
-    "main.js": "/smart-ludo-new/static/js/main.04639a4e.js",
+    "main.js": "/smart-ludo-new/static/js/main.d6a24283.js",
     "static/js/453.658eb477.chunk.js": "/smart-ludo-new/static/js/453.658eb477.chunk.js",
     "static/media/diceRollingSoundEffect.mp3": "/smart-ludo-new/static/media/diceRollingSoundEffect.25c3ebd9c708582c758d.mp3",
     "static/media/cheera.png.png": "/smart-ludo-new/static/media/cheera.png.d52a6d6f051b0df2a7b5.png",
@@ -13,11 +13,11 @@
     "static/media/victoryBox.svg": "/smart-ludo-new/static/media/victoryBox.29905e48adb76ceb3e5e.svg",
     "index.html": "/smart-ludo-new/index.html",
     "main.f0de5868.css.map": "/smart-ludo-new/static/css/main.f0de5868.css.map",
-    "main.04639a4e.js.map": "/smart-ludo-new/static/js/main.04639a4e.js.map",
+    "main.d6a24283.js.map": "/smart-ludo-new/static/js/main.d6a24283.js.map",
     "453.658eb477.chunk.js.map": "/smart-ludo-new/static/js/453.658eb477.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f0de5868.css",
-    "static/js/main.04639a4e.js"
+    "static/js/main.d6a24283.js"
   ]
 }
