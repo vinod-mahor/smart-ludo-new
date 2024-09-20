@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserActive } from '../App/Slices/TernSlice';
+import { setUserActive, setTernSkippedOrNot } from '../App/Slices/TernSlice';
 import { upDateDice } from '../App/Slices/DiceSlice.js';
 import { setChangeColorInterval, clearChangeColorInterval } from '../App/Slices/IntervalSlice.js';
 import { unLockTern } from '../App/Slices/MoveControllerSlice.js';
@@ -12,7 +12,7 @@ import { setNextUserActive } from '../App/Slices/TernSlice';
 const Dice = (props) => {
     const [random, newRandom] = useState(Math.floor(Math.random() * 6) + 1);
     const [showNum1, setShowNum1] = useState();
-    const [skipTern, setSkipTern] = useState(false);
+    const [skipTern, setSkipTern] = useState(true);// changed for debugging it will be false
     const [roll, setRoll] = useState('none');
     const [colorDecolor, setColorDecolor] = useState(`${props.props.backgroundColor}`);
     const [isDisabledDice, setIsDisabledDice] = useState(false);
@@ -31,24 +31,20 @@ const Dice = (props) => {
         const diceSound = new Audio(DiceRollingSould);
         diceSound.play();
     }
-    useEffect(() => {
-        if (skipTern) {
-            if (currentTern.isTernFinished) {
-                setTimeout(() => {
-                    console.log("IsCurrentTernFinished : " + currentTern.isTernFinished);
-                    setTimeout(() => {
-                        dispatch(setNextUserActive());
-                        dispatch(resetFinishedTern());
-                    }, 0);
-                }, 4500);
-            }
-            setSkipTern(false);
-        }
-    }, [skipTern]);
+
     useEffect(() => {
         if (currentTern.isTernFinished) {
-            dispatch(setNextUserActive())
+            if (currentTern.isTernSkippe === true) {
+                dispatch(setNextUserActive())
+            } else {
+                setTimeout(() => {
+                    console.log("next user active by use effect2")
+                    dispatch(setNextUserActive())
+                },0)
+            }
+            dispatch(setTernSkippedOrNot(false));
         }
+
     }, [currentTern.isTernFinished])
 
     useEffect(() => {
@@ -90,22 +86,25 @@ const Dice = (props) => {
         }
     };
     const canToknMoveConditionCheaker = (allInHomeColor, allInVictoryColor, numberOfOutsideTokensColor, numberOfTokenWonColor) => {
+  
+        // Condition 1: when the token can't move
         if (((allInHomeColor && random !== 6) || allInVictoryColor)) {
+            // because user can't move therfore we set the user has done his move and we  retruning false
+            setTernSkippedOrNot(true);
             dispatch(setUserFinishedTern());
-            setSkipTern(true); //skiping the tern
+            console.log("tern setted to skip")
             return false;
         }
-        // Condition 1: when the token can move
+        // Condition 2: when the token can move
         else if ((numberOfOutsideTokensColor > 0) && !(numberOfOutsideTokensColor == numberOfTokenWonColor)) {
-            console.log("else if working")
+            // because user can move therfore we set the user has done his move and  we retruning true
+            setTernSkippedOrNot(false);
             dispatch(resetFinishedTern());
-            setSkipTern(false);
             return true
         }
         else {
             console.log("trying to handle errors!");
         }
-
     }
 
     function canTokenMove(currentTern, random, tokenPosition, homeStatus, isTokenWon, diceState, tokens) {
@@ -117,14 +116,8 @@ const Dice = (props) => {
                 const numberOfOutsideTokensBlue = homeStatus.blueToken.filter(token => token === "outside").length
                 const numberOfIntsideTokensBlue = homeStatus.blueToken.filter(token => token === "inside").length
                 const numberOfTokenWonBlue = isTokenWon.blueToken.filter(token => token === "true").length
-                canToknMoveConditionCheaker(allInHomeBlue, allInVictoryBlue, numberOfOutsideTokensBlue, numberOfTokenWonBlue);
-                // console.warn({
-                //     allInHomeBlue,
-                //     allInVictoryBlue,
-                //     numberOfOutsideTokensBlue,
-                //     numberOfIntsideTokensBlue,
-                //     numberOfTokenWonBlue
-                // })
+                const conditionResultBlue = canToknMoveConditionCheaker(allInHomeBlue, allInVictoryBlue, numberOfOutsideTokensBlue, numberOfTokenWonBlue);
+                return conditionResultBlue
                 break;
             case "red":
                 const allInHomeRed = homeStatus.redToken.every(token => token === 'inside');
@@ -132,7 +125,9 @@ const Dice = (props) => {
                 const numberOfOutsideTokensRed = homeStatus.redToken.filter(token => token === "outside").length;
                 const numberOfIntsideTokensRed = homeStatus.redToken.filter(token => token === "inside").length;
                 const numberOfTokenWonRed = isTokenWon.redToken.filter(token => token === "true").length;
-                canToknMoveConditionCheaker(allInHomeRed, allInVictoryRed, numberOfOutsideTokensRed, numberOfTokenWonRed);
+                const conditionResultRed = canToknMoveConditionCheaker(allInHomeRed, allInVictoryRed, numberOfOutsideTokensRed, numberOfTokenWonRed);
+                return conditionResultRed
+
                 break;
             case "green":
                 const allInHomeGreen = homeStatus.greenToken.every(token => token === 'inside');
@@ -140,7 +135,8 @@ const Dice = (props) => {
                 const numberOfOutsideTokensGreen = homeStatus.greenToken.filter(token => token === "outside").length;
                 const numberOfIntsideTokensGreen = homeStatus.greenToken.filter(token => token === "inside").length;
                 const numberOfTokenWonGreen = isTokenWon.greenToken.filter(token => token === "true").length;
-                canToknMoveConditionCheaker(allInHomeGreen, allInVictoryGreen, numberOfOutsideTokensGreen, numberOfTokenWonGreen);
+                const conditionResultGreen = canToknMoveConditionCheaker(allInHomeGreen, allInVictoryGreen, numberOfOutsideTokensGreen, numberOfTokenWonGreen);
+                return conditionResultGreen;
                 break;
             case "yellow":
                 const allInHomeYellow = homeStatus.yellowToken.every(token => token === 'inside');
@@ -148,7 +144,8 @@ const Dice = (props) => {
                 const numberOfOutsideTokensYellow = homeStatus.yellowToken.filter(token => token === "outside").length;
                 const numberOfIntsideTokensYellow = homeStatus.yellowToken.filter(token => token === "inside").length;
                 const numberOfTokenWonYellow = isTokenWon.yellowToken.filter(token => token === "true").length;
-                canToknMoveConditionCheaker(allInHomeYellow, allInVictoryYellow, numberOfOutsideTokensYellow, numberOfTokenWonYellow);
+                const conditionResultYellow = canToknMoveConditionCheaker(allInHomeYellow, allInVictoryYellow, numberOfOutsideTokensYellow, numberOfTokenWonYellow);
+                return conditionResultYellow;
                 break;
             default:
                 break;
@@ -272,10 +269,17 @@ const Dice = (props) => {
             console.log(`review :${review}`)
             console.log("waiting for user move....")
         } else {
-            console.log("set Next user active after watching review")
-            dispatch(setNextUserActive())
+            console.log(currentTern.isTernSkippe)
+            if (currentTern.isTernSkippe) {
+                dispatch(setNextUserActive())
+                // dispatch(setTernSkippedOrNot(true))
+            } else {
+                dispatch(setNextUserActive())
+                dispatch(setTernSkippedOrNot(true))
+            }
+
         }
-        console.log("can token move  :" + review)
+        // console.log("can token move  :" + review)
         setTimeout(() => {
             setIsDisabledDice(false);
         }, 2500);

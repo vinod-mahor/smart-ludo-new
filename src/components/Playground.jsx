@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './Playground.css'
 import ShowToken from './ShowToken'
 import { useSelector, useDispatch } from 'react-redux'
-import { setUserFinishedTern } from '../App/Slices/TernSlice'
+import { setUserFinishedTern, setTernSkippedOrNot } from '../App/Slices/TernSlice'
 import { releseToken, runToken, runTokenOnVictoryPath, takeTokenOnVictoryPath } from '../App/Slices/TokenPositionSlice';
 import { lockTern } from '../App/Slices/MoveControllerSlice';
 import { takeOutOneToken } from '../App/Slices/HomeStatusSlice';
@@ -10,7 +10,7 @@ import { setTokenInsideOfVictoryPath, setTokenOutsideOfVictoryPath } from '../Ap
 import { setLap, removeLap } from '../App/Slices/LapSlice';
 // import { canTokenMove } from './Dice'
 const Playground = () => {
-    
+
     const Tern = useSelector((state) => state.ternHandler);
     const [argumentBlue, setArgumentBlue] = useState([])
     const [argumentRed, setArgumentRed] = useState([])
@@ -60,7 +60,8 @@ const Playground = () => {
 
     }, [argumentBlue, argumentRed, argumentGreen, argumentYellow])
     const dispatch = useDispatch();
-    // creating some important fuctions
+
+    // some important fuctions
 
     // this fuction will update the state when the any token done 1 lap or remove 1 lap accoring to done or killed by another token,
     const setTokenDoneOneLap = (tokenColor, tokenNum, actionType) => {
@@ -96,7 +97,6 @@ const Playground = () => {
                 }
                 else {
                     // the token have not opened then it will excute
-                    // isTokenInVictoryBox.blueToken[tokenNum - 1] this condition will retun only ture or false
                     // first we check is token on victory box?
                     if (isTokenInVictoryBox.blueToken[tokenNum - 1]) {
                         //hence the token is in victory path
@@ -113,7 +113,9 @@ const Playground = () => {
                                     console.log("token is on 53")
                                     setTokenDoneOneLap("blue", tokenNum, "set"); // setting the token has done 1 lap
                                     dispatch(runToken(["blue", tokenNum, diceLastNumberblue, curretPositionBlue, homeStatus]));
-                                    dispatch(setUserFinishedTern())
+                                    if (diceLastNumberblue !== 6) {
+                                        dispatch(setUserFinishedTern())
+                                    }
                                     console.log("user seted to finished tern")
                                     dispatch(lockTern("rgb(36,113,255)"));
 
@@ -136,8 +138,10 @@ const Playground = () => {
                         }
                         else {
                             dispatch(runToken(["blue", tokenNum, diceLastNumberblue, curretPositionBlue, homeStatus]));
-                            dispatch(setUserFinishedTern())
-                            console.log("user seted to finished tern")
+                            if (diceLastNumberblue !== 6) {
+                                dispatch(setUserFinishedTern())
+                                console.log("user seted to finished tern")
+                            }
                             dispatch(lockTern("rgb(36,113,255)"));
                         }
                     }
@@ -160,6 +164,9 @@ const Playground = () => {
                             console.log(`the ${tokenColor} and the tokenNum ${tokenNum} done 1 lap `);
                         }
                         dispatch(runToken(["red", tokenNum, diceLastNumberRed, tokenPosition.redToken[tokenNum - 1], homeStatus]));
+                        if (diceLastNumberRed !== 6) {
+                            dispatch(setUserFinishedTern())
+                        }
                         dispatch(lockTern("red"));
                     } else if (isTokenInVictoryBox.redToken[tokenNum - 1]) {
                         //hence the token is in victory path
@@ -175,6 +182,9 @@ const Playground = () => {
                             dispatch(lockTern("red"))
                         } else {
                             dispatch(runToken(["red", tokenNum, diceLastNumberRed, tokenPosition.redToken[tokenNum - 1], homeStatus]));
+                            if (diceLastNumberRed !== 6) {
+                                dispatch(setUserFinishedTern())
+                            }
                             dispatch(lockTern("red"));
                         }
 
@@ -190,7 +200,7 @@ const Playground = () => {
                     dispatch(releseToken([tokenColor, tokenNum, diceLastNumberGreen]));
                     dispatch(takeOutOneToken([tokenColor, tokenNum, diceLastNumberGreen]))
                     dispatch(lockTern(tokenColor));
-                    
+
 
                 }
                 else {
@@ -201,6 +211,9 @@ const Playground = () => {
                             console.log(`the ${tokenColor} and the tokenNum ${tokenNum} done 1 lap `);
                         }
                         dispatch(runToken([tokenColor, tokenNum, diceLastNumberGreen, tokenPosition.greenToken[tokenNum - 1], homeStatus]));
+                        if (diceLastNumberGreen !== 6) {
+                            dispatch(setUserFinishedTern())
+                        }
                         dispatch(lockTern(tokenColor));
                     }
                     else if (isTokenInVictoryBox.greenToken[tokenNum - 1]) {
@@ -216,6 +229,9 @@ const Playground = () => {
                             dispatch(lockTern(tokenColor))
                         } else {
                             dispatch(runToken([tokenColor, tokenNum, diceLastNumberGreen, currentPositionGreen, homeStatus]));
+                            if (diceLastNumberGreen !== 6) {
+                                dispatch(setUserFinishedTern())
+                            }
                             dispatch(lockTern(tokenColor));
 
                         }
@@ -232,7 +248,7 @@ const Playground = () => {
                     // console.log("move Token fuction is activated by yellow color");
                     dispatch(releseToken(["yellow", tokenNum, diceLastNumberYellow]));
                     dispatch(takeOutOneToken(["yellow", tokenNum, diceLastNumberYellow]));
-                    console.warn(tokenColor)
+                    // console.warn(tokenColor)
                     dispatch(lockTern(tokenColor));
 
                 } else {
@@ -244,6 +260,9 @@ const Playground = () => {
                             console.log(`the ${tokenColor} and the tokenNum ${tokenNum} done 1 lap `);
                         }
                         dispatch(runToken([tokenColor, tokenNum, diceLastNumberYellow, currentPositionYellow, homeStatus]));
+                        if (diceLastNumberYellow !== 6) {
+                            dispatch(setUserFinishedTern())
+                        }
                         dispatch(lockTern(tokenColor));
                         console.warn(tokenColor)
 
@@ -263,8 +282,11 @@ const Playground = () => {
                             dispatch(lockTern(tokenColor))
                         } else {
                             dispatch(runToken([tokenColor, tokenNum, diceLastNumberYellow, currentPositionYellow, homeStatus]));
+                            if (diceLastNumberYellow !== 6) {
+                                dispatch(setUserFinishedTern())
+                            }
                             dispatch(lockTern(tokenColor));
-                            console.warn(tokenColor)
+                            // console.warn(tokenColor)
                         }
 
                     }

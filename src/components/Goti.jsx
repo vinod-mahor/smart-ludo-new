@@ -68,7 +68,6 @@ const Goti = ({ color, tokenNum, moveToken }) => {
                 }
                 break;
             case "yellow":
-                console.log(lockStatus)
                 if (lockStatus.yellowToken == "unLocked") {
                     if (!(tokenPosition.yellowToken[tokenNum - 1] === "yh6")) {
                         moveToken(color, tokenNum)

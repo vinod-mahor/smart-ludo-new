@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     ActiveUser: "rgb(36,113,255)",
     isTernFinished: false,
-    currentPlayerIndex: 0
+    currentPlayerIndex: 0,
+    isTernSkipped: false
 };
 const userList = ["rgb(36,113,255)", "red", "green", "yellow"]
 const TernSlice = createSlice({
@@ -16,7 +17,7 @@ const TernSlice = createSlice({
         setUserFinishedTern: (state, action) => {
             state.isTernFinished = true;
         },
-        resetFinishedTern:(state)=>{
+        resetFinishedTern: (state) => {
             state.isTernFinished = false;
         }
         ,
@@ -28,20 +29,14 @@ const TernSlice = createSlice({
                 state.ActiveUser = userList[state.currentPlayerIndex];
                 console.log(state.ActiveUser);
                 state.isTernFinished = false;
-            }else{
-                console.log("unable to change tern!")
             }
+        },
+        setTernSkippedOrNot: (state, action) => {
+            state.isTernSkipped = action.payload
         }
 
     }
 });
 
-export const { setUserActive, setNextUserActive, setUserFinishedTern,resetFinishedTern } = TernSlice.actions;
+export const { setUserActive, setNextUserActive, setUserFinishedTern, resetFinishedTern, setTernSkippedOrNot } = TernSlice.actions;
 export default TernSlice.reducer;
-
-export async function pushToNextTern(dispatch, getState) {
-    return function () {
-        const state = getState();
-        dispatch(setNextUserActive()); // Move to the next player's turn
-    };
-}
